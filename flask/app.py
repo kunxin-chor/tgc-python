@@ -25,6 +25,34 @@ def index():
     return render_template('index.html', 
     data=results)
 
+@app.route('/artist')
+def artists():
+     cursor = connection.cursor(pymysql.cursors.DictCursor)
+     sql = "SELECT * FROM Artist"
+     cursor.execute(sql)
+     results = []
+     for r in cursor:
+         results.append(r)
+     print(results)
+     return render_template('artist.html', data=results)
+     
+@app.route('/album/<artistId>')
+def albums(artistId):
+     cursor = connection.cursor(pymysql.cursors.DictCursor)
+     
+     sql = "SELECT * FROM Artist Where ArtistId = {}".format(artistId)
+     cursor.execute(sql)
+     artist = cursor.fetchone()
+     
+     sql = "SELECT * FROM Album WHERE ArtistId = {}".format(artistId)
+     cursor.execute(sql)
+     results = []
+     for r in cursor:
+         results.append(r)
+     print(results)
+     return render_template('album.html', data=results, artist=artist)
+     return sql
+
 # "magic code" -- boilerplate
 if __name__ == '__main__':
     app.run(host=os.environ.get('IP'),
