@@ -51,7 +51,21 @@ def albums(artistId):
          results.append(r)
      print(results)
      return render_template('album.html', data=results, artist=artist)
-     return sql
+
+
+@app.route('/music/track/<albumId>')
+def track(albumId):
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM Track WHERE AlbumId = {}".format(albumId)
+    print (sql)
+    # cursor is NOT the results; cursor points to the result
+    cursor.execute(sql)
+    
+    results = []
+    for r in cursor:
+        results.append(r)
+        
+    return render_template('track.html', data=results)
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':

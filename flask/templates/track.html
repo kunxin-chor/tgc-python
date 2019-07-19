@@ -12,23 +12,23 @@
   </head>
   <body>
     <div class='container'>
-        <h1>Albums by {{ artist['Name'] }}</h1>
+        <h1>Artist</h1>
         <table class='table'>
             <thead>
                 <tr>
-                    <th>Album ID</th>
-                    <th>Album Name</th>
+                    <th>Track ID</th>
+                    <th>Track Name</th>
                 </tr>
             </thead>
             {%for r in data%}
             <tr>
                 <td>
-                {{ r['AlbumId'] }}
+                {{ r['TrackId'] }}
                 </td>
                 <td>
-                    <a href="{{ url_for('track', albumId = r['AlbumId'] ) }}">
-                        {{ r['Title'] }}
-                    </a>
+               
+                {{ r['Name'] }}
+                
                 </td>
             </tr>
             {%endfor%}
