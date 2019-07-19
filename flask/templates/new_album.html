@@ -12,32 +12,22 @@
   </head>
   <body>
     <div class='container'>
-        <h1>Artist</h1>
-     
-        <table class='table'>
-            <thead>
-                <tr>
-                    <th>Artist ID</th>
-                    <th>Artist Name</th>
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            {%for r in data%}
-            <tr>
-                <td>
-                {{ r['ArtistId'] }}
-                </td>
-                <td>
-                <a href="album/{{ r['ArtistId'] }}">
-                {{ r['Name'] }}
-                </a>
-                </td>
-                <td>
-                    <a href='{{ url_for('edit_artist',artistId=r['ArtistId'] )}}'>Edit</a>
-                </td>
-            </tr>
-            {%endfor%}
-        </table>
+      <form method='post'>
+          {{artist_id}}
+          <div class='form-group'>
+              <label class='label'>Name:</label>
+              <input type='text' name='album_name' class='form-control'>
+          </div>
+          <div class='form-group'>
+              <label class='label'>Artist:</label>
+              <select name='artist' class='form-control'>
+                  {%for d in data %}
+                  <option value='{{ d['ArtistId'] }}' {%if d['ArtistId'] == artist_id %}selected='selected'{%endif%}>{{ d['Name'] }}</option>
+                  {%endfor%}
+              </select>
+          </div>
+          <input type='submit' class='btn btn-primary mt-3'/>
+      </form>
     </div>
 
     <!-- Optional JavaScript -->

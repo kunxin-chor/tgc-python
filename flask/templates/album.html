@@ -13,6 +13,9 @@
   <body>
     <div class='container'>
         <h1>Albums by {{ artist['Name'] }}</h1>
+         <div>
+            <a href="{{  url_for('new_album', artistId = artist['ArtistId'] ) }}" class='btn btn-primary'>New Album</a>
+        </div>
         <table class='table'>
             <thead>
                 <tr>
