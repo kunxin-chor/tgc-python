@@ -12,11 +12,14 @@ connection = pymysql.connect(
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
+ 
     cursor = connection.cursor(pymysql.cursors.DictCursor)
-    sql = "SELECT * FROM Employee"
-    cursor.execute(sql)
+    search_terms = request.args.get('search_terms')
+    # sql = "SELECT * FROM Employee WHERE FirstName LIKE '%{}%'".format(search_terms)
+    sql = "SELECT * FROM Employee WHERE FirstName LIKE %s"
+    cursor.execute(sql, ['%' + search_terms + '%'])
     # store results in a list
     results = []
     for r in cursor:
@@ -174,6 +177,101 @@ def new_artist():
     else:
      return "form submitted"
 """
+
+"""
+1. We need a route to show the form for adding a new one
+2. We need a route to process the form for adding a new one
+3. We need a route to show the form for editing the existing data
+4. We need a route to process the form for editing the existing data
+5. We need a route to show all the records for a table (Read in the CRUD)
+6. We need a route to delete a record from a table
+"""
+@app.route('/mediatype')
+def show_mediatype():
+    # 1. we need a database cursor
+    cursor =  connection.cursor(pymysql.cursors.DictCursor)
+   
+    # 2. We need a SQL statement
+    sql = "SELECT * FROM MediaType WHERE deleted=0"
+    
+    # 3. We have a cursor, we have a statement
+    cursor.execute(sql)
+    
+    #4. We need to show the results
+    # If there is only one result: we can use cursor.fetchone()
+    results = []
+    for r in cursor:
+        results.append(r)
+        
+    #5. pass the results to a template
+    return render_template('mediatype.html', data=results)
+ 
+
+@app.route('/new/mediatype', methods=['GET'])
+def new_mediatype():
+    #1. show the form
+    return render_template('new_mediatype.html', mediatype={})
+    
+@app.route('/new/mediatype', methods=['POST'])
+def create_new_mediatype():
+    #0. Create SQL cursor
+    cursor =  connection.cursor(pymysql.cursors.DictCursor)
+    
+    #1. retrieve whatever data the user typed into the form
+    media_type_name = request.form.get('media_type_name')
+    
+    #OPTIONAL 
+    #If the database didn't use auto increment for the primary key, then
+    #we have to calculate the next id ourselves
+    
+    sql = "SELECT MAX(MediaTypeId) AS'max_id' FROM MediaType";
+    cursor.execute(sql)
+    current_max_id = cursor.fetchone()['max_id']
+    next_id = current_max_id + 1
+    
+    #2. Create the insert statement
+    sql = "INSERT INTO MediaType (MediaTypeId, Name) VALUES (%s, %s)"
+    
+    #3. Excute the query
+    cursor.execute(sql, [next_id, media_type_name])
+    
+    #4. Commit to the database to make the transaction permanent.
+    connection.commit()
+    
+    #5. redirect to the listing page
+    return redirect(url_for('show_mediatype'))
+    
+@app.route('/edit/mediatype/<mediaTypeID>')
+def edit_media_type(mediaTypeID):
+    #1 Retrieve the existing information for the media type we have selected
+    cursor =  connection.cursor(pymysql.cursors.DictCursor)
+    
+    sql = "SELECT * FROM MediaType WHERE MediaTypeId = %s"
+    cursor.execute(sql, [mediaTypeID])
+    mediatype = cursor.fetchone()
+    
+    #1 Show the form
+
+    
+    return render_template('edit_mediatype.html', mediatype=mediatype)
+
+@app.route('/delete/confirm/mediatype/<mediaTypeID>')
+def confirm_delete_mediatype(mediaTypeID):
+    cursor =  connection.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM MediaType where MediaTypeId = %s"
+    cursor.execute(sql, [mediaTypeID])
+    mediatype = cursor.fetchone()
+    
+    return render_template('confirm_delete_mediatype.html', mediatype=mediatype)
+    
+@app.route('/delete/mediatype/<mediaTypeID>', methods=['POST'])
+def delete_mediatype(mediaTypeID):
+    cursor =  connection.cursor(pymysql.cursors.DictCursor)
+    # sql = "DELETE FROM MediaType WHERE MediaTypeId = %s"
+    sql = "UPDATE MediaType SET deleted = 1 WHERE MediaTypeId = %s"
+    cursor.execute(sql, [mediaTypeID])
+    connection.commit()
+    return redirect(url_for('show_mediatype'))
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':

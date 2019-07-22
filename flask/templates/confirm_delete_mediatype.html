@@ -12,36 +12,13 @@
   </head>
   <body>
     <div class='container'>
-        <form class='form mt-3 mb-3' method='GET'>
-            <input type='text' name='search_terms' class='form-control' placeholder="Enter search terms"/>
-            <input type="submit" value='submit' class='btn btn-primary mt-3'/>
-        </form>
-        <table class='table'>
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Second Name</th>
-                    <th>Title</th>
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            {%for r in data%}
-            <tr>
-                <td>
-                {{ r['FirstName'] }}
-                </td>
-                <td>
-                {{ r['LastName'] }}
-                </td>
-                <td>
-                {{ r['Title'] }}
-                </td>
-                <td>
-                    <a href='{{ url_for('edit_employee', employeeId = r['EmployeeId']) }}'>Edit</a>
-                </td>
-            </tr>
-            {%endfor%}
-        </table>
+         <div class='alert alert-danger'>
+             <form method='POST' action='{{ url_for("delete_mediatype", mediaTypeID=mediatype['MediaTypeId']) }}'>
+                 <p>You are deleting Media Type: {{ mediatype['Name'] }}. This cannot be undone! Are you sure?</p>
+                 <input class='btn btn-danger' type='submit' value='Yes I am really sure' />
+                 <a class='btn btn-primary' href='{{url_for('show_mediatype')}}'>Don't delete</a>
+             </form>
+         </div>
     </div>
 
     <!-- Optional JavaScript -->
