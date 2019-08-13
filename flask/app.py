@@ -17,6 +17,8 @@ def index():
  
     cursor = connection.cursor(pymysql.cursors.DictCursor)
     search_terms = request.args.get('search_terms')
+    if search_terms is None:
+        search_terms = ''
     # sql = "SELECT * FROM Employee WHERE FirstName LIKE '%{}%'".format(search_terms)
     sql = "SELECT * FROM Employee WHERE FirstName LIKE %s"
     cursor.execute(sql, ['%' + search_terms + '%'])
@@ -272,6 +274,65 @@ def delete_mediatype(mediaTypeID):
     cursor.execute(sql, [mediaTypeID])
     connection.commit()
     return redirect(url_for('show_mediatype'))
+    
+@app.route('/new/track')
+def create_new_track():
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM Genre"
+    # fetch all genres and store it in a list
+    cursor.execute(sql)
+    genres = []
+    for r in cursor:
+        genres.append({
+            'GenreId' : r['GenreId'],
+            'Name': r['Name']
+        })
+        
+    # fetch all media type and store it in a list
+    sql = "SELECT * FROM Album"
+    cursor.execute(sql)
+    albums = []
+    for r in cursor:
+        albums.append({
+            'AlbumId':r['AlbumId'],
+            'Name': r['Title']
+        })
+    
+    # fetch all media type and store it in a list
+    sql = "SELECT * FROM MediaType"
+    cursor.execute(sql)
+    mediatypes = []
+    for r in cursor:
+        mediatypes.append({
+            'MediaTypeId':r['MediaTypeId'],
+            'Name': r['Name']
+        })
+    
+    return render_template('new_track.html', genres=genres, albums=albums, mediatypes=mediatypes)
+    
+@app.route('/new/track', methods=['POST'])
+def process_create_track():
+    track_name = request.form.get('track_name')
+    album = request.form.get('album')
+    genre = request.form.get('genre')
+    media_type = request.form.get('media_type')
+    
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
+    
+    
+    sql = "SELECT MAX(TrackId) AS'max_id' FROM Track";
+    cursor.execute(sql)
+    current_max_id = cursor.fetchone()['max_id']
+    next_id = current_max_id + 1
+    
+    sql = """
+        INSERT INTO Track (TrackId, Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        
+    cursor.execute(sql, [next_id, track_name, album, media_type, genre, "N/A", 0, 0, 0])
+    connection.commit()
+    return "Added"
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':
