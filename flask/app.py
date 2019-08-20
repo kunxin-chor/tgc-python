@@ -151,8 +151,9 @@ def new_album(artistId=0):
     
     return render_template('new_album.html', data=artists,artist_id = int(artistId))
     
-@app.route('/new/album', methods=['POST'])
-def create_new_album():
+@app.route('/new/album/', methods=['POST'])
+@app.route('/new/album/<artistId>', methods=['POST'])
+def create_new_album(artistId=0):
     
     cursor =  connection.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT MAX(AlbumId) FROM Album")
@@ -169,6 +170,27 @@ def create_new_album():
 
     connection.commit()
     return "Album created successfully!"
+    
+@app.route('/edit/album/<album_id>')
+def edit_album(album_id):
+    sql = "SELECT * FROM Album WHERE AlbumId = {}".format(album_id)
+    
+    cursor =  connection.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(sql)
+    album = cursor.fetchone()
+  
+    # get all the artists
+    sql = "SELECT * FROM Artist"
+    cursor.execute(sql)
+    artists = []
+    for r in cursor:
+        artists.append({
+            'ArtistId' : r['ArtistId'],
+            'Name' : r['Name']
+        })
+    
+    return render_template('edit_album.html', album=album, artists=artists)
+    
 
 """
 Alternatively:
